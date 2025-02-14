@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import FilmDetails from './filmDetails.jsx'
 import './App.css'
 
 function App() {
-  const[movies, setMovies] = useState([])
-  const[search, setSearch] = useState('')
-  const[filter, setFilter] = useState([])
+  const [movies, setMovies] = useState([])
+  const [search, setSearch] = useState('Dectetive conan')
+  const [filter, setFilter] = useState([])
+  const [detail, setDetail] = useState(null)
+  const [open, setOpen] = useState(false)
+
   const getfilm = async () => {
     try {
       Swal.fire({
@@ -16,7 +20,7 @@ function App() {
         allowOutsideClick: false,
         showConfirmButton: false
       });
-      const responses = await axios.get('https://imdb.iamidiotareyoutoo.com/search?q=Detective_Conan')
+      const responses = await axios.get(`https://imdb.iamidiotareyoutoo.com/search?q=${search}`)
       setMovies(responses.data.description)
       setFilter(responses.data.description)
       Swal.close();
@@ -27,25 +31,35 @@ function App() {
       console.log(error)
     }
   }
-  const handleSearch = (e) => {
+
+  const handleInputChange = (e) => {
     setSearch(e.target.value)
   }
-  const filterFilm = () => {
-    const filtered = movies.filter((movie) => 
-      movie['#TITLE'].toLowerCase().includes(search.toLowerCase())
-    )
-    setFilter(filtered)
+
+  const handleSearchClick = () => {
+    getfilm()
   }
+
   useEffect(() => {
-    getfilm ()
+    getfilm()
   }, [])
+
+  const openModal = (movie) => {
+    setOpen(true);
+    setDetail(movie);
+  }
+
+  const closeModal = () => {
+    setOpen(false);
+    setDetail(null);
+  }
 
   return (
     <div className='app'>
       <div className="header">
         <h1 className='title'>Movie Collection</h1>
-        <input  value={search} type='text' placeholder='search' onChange={handleSearch}/>
-        <button onClick={filterFilm}>search</button>
+        <input value={search} type='text' placeholder='search' onChange={handleInputChange}/>
+        <button onClick={handleSearchClick}>Search</button>
       </div>
       <div className='mapMovie'>
         {filter.map((movies) => {
@@ -57,11 +71,13 @@ function App() {
               <p>{movies['#YEAR']}</p>
               <p>#{movies['#RANK']}</p>
             </div>
+            <button onClick={() => openModal(movies)}>More Info</button>
             <p className='cast'>cast:<br/>{movies['#ACTORS']}</p>
           </div>
           )
         })}
       </div>
+      <FilmDetails isOpen={open} movie={detail} onClose={closeModal} />
     </div>
   )
 }

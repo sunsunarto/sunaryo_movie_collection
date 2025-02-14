@@ -33,6 +33,10 @@
     box-shadow: #578FCA 0px 0px 10px 0px;
     padding: 10px;
     border-radius: 10px;
+    button{
+      color: white;
+      background-color: #578FCA;
+    }
   }
   img{
     border-radius: 10px;
